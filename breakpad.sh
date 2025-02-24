@@ -8,7 +8,7 @@ fi
 cd breakpad
 
 if [ ! -d "depot_tools" ]; then
-  git clone --depth=1 --branch=master https://chromium.googlesource.com/chromium/tools/depot_tools.git depot_tools
+  git clone --depth=1 --branch=main https://chromium.googlesource.com/chromium/tools/depot_tools.git depot_tools
 fi
 
 if [ ! -d "src" ]; then
