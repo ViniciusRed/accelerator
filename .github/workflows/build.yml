@@ -1,0 +1,32 @@
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: debian:11
+    steps:
+        - name: Checkout Project
+          uses: actions/checkout@v1
+
+        - name: Run
+          run: pwd && ls -la && mkdir /accelerator && cp * /accelerator -Rfv ; cd /accelerator && bash ./cicd/_accelerator_docker_build_internal.sh
+
+        - name: Zip packages
+          run: |
+            pwd
+            ls -la
+            cd /accelerator
+            apt-get update
+            apt-get install p7zip-full -y
+            cd build
+            7za a -r accelerator.zip package/
+            ls -la
+            pwd
+            cd ../
+
+        - name: Upload artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: accelerator
+            path: |
+              /accelerator/build/accelerator.zip
