@@ -59,7 +59,7 @@ buildIt()
     fi
 
     pushd build
-        CC=clang CXX=clang++ python3 ../configure.py \
+        CC=clang CXX=clang++ python3 ../configure.py --enable-optimize \
         --mms-path=/accelerator/${amTempLocation}/mmsource-1.12/    \
         --sm-path=/accelerator/${amTempLocation}/sourcemod/         \
         --hl2sdk-root=/accelerator/${amTempLocation}/               \
