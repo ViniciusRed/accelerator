@@ -2,24 +2,23 @@
 set -ex
 
 if [ ! -d "breakpad" ]; then
-  mkdir breakpad
+	mkdir breakpad
 fi
 
 cd breakpad
 
 if [ ! -d "depot_tools" ]; then
-  git clone --depth=1 --branch=main https://chromium.googlesource.com/chromium/tools/depot_tools.git depot_tools
+	git clone --depth=1 --branch=main https://chromium.googlesource.com/chromium/tools/depot_tools.git depot_tools
 fi
 
 if [ ! -d "src" ]; then
-  PYTHONDONTWRITEBYTECODE=1 python3 ./depot_tools/fetch.py --nohooks breakpad
+	PYTHONDONTWRITEBYTECODE=1 python3 ./depot_tools/fetch.py --nohooks breakpad
 fi
 
 # update breakpad to latest no matter what
 git -C src fetch
 git -C src reset --hard origin/main # <- you want main, not master!!!
 PYTHONDONTWRITEBYTECODE=1 python3 ./depot_tools/gclient.py sync --nohooks
-
 
 cd src
 git config user.name patches || true
@@ -29,7 +28,7 @@ git am -3 --keep-cr ../../patches/*.patch || exit 1
 cd ..
 
 if [ ! -d "build" ]; then
-  mkdir build
+	mkdir build
 fi
 
 cd build

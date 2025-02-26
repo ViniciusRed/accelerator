@@ -1,7 +1,7 @@
-version: '{build}'
+version: "{build}"
 os: Visual Studio 2015
 environment:
-  GYP_MSVS_VERSION: '2015'
+  GYP_MSVS_VERSION: "2015"
 install:
   - cd ..
   - git clone --depth=1 --branch=1.8-dev --recursive https://github.com/alliedmodders/sourcemod sourcemod-1.8
