@@ -12,17 +12,20 @@ if [ ! -d "depot_tools" ]; then
 fi
 
 if [ ! -d "src" ]; then
-  PYTHONDONTWRITEBYTECODE=1 python2.7 ./depot_tools/fetch.py --nohooks breakpad
-else
-  git -C src fetch
-  git -C src reset --hard origin/master
-  PYTHONDONTWRITEBYTECODE=1 python2.7 ./depot_tools/gclient.py sync --nohooks
+  PYTHONDONTWRITEBYTECODE=1 python3 ./depot_tools/fetch.py --nohooks breakpad
 fi
 
+# update breakpad to latest no matter what
+git -C src fetch
+git -C src reset --hard origin/main # <- you want main, not master!!!
+PYTHONDONTWRITEBYTECODE=1 python3 ./depot_tools/gclient.py sync --nohooks
+
+
 cd src
-git config user.name patches
-git config user.email patches@localhost
-git am -3 --keep-cr ../../patches/*.patch
+git config user.name patches || true
+git config user.email patches@localhost || true
+# explode if we can't apply patches
+git am -3 --keep-cr ../../patches/*.patch || exit 1
 cd ..
 
 if [ ! -d "build" ]; then
@@ -30,8 +33,7 @@ if [ ! -d "build" ]; then
 fi
 
 cd build
-
-../src/configure --enable-m32 CXXFLAGS="-g -O2 -D_GLIBCXX_USE_CXX11_ABI=0"
+env ac_cv_header_a_out_h=yes CXXFLAGS=-m32 CFLAGS=-m32 CPPFLAGS=-m32 ../src/configure --enable-m32 CFLAGS="-Wno-error=deprecated" CXXFLAGS="-Wno-error=deprecated -g -O2 -D_GLIBCXX_USE_CXX11_ABI=0" CPPFLAGS=-m32
 
 make src/tools/linux/dump_syms/dump_syms
 make src/client/linux/libbreakpad_client.a
