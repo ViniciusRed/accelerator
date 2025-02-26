@@ -589,18 +589,18 @@ To avoid an arcane error if you've got the wrong one (likely a bad clone or a ci
 */
 		static_assert( sizeof(google_breakpad::DumpOptions::enable_multiple_field) == sizeof(bool), "DumpOptions::enable_multiple_field member missing or not a bool!");
 		std::ostringstream outputStream;
-		google_breakpad::DumpOptions options(ALL_SYMBOL_DATA, true, false);
+		google_breakpad::DumpOptions options(ALL_SYMBOL_DATA, true, false, false);
 		/*, third argument is related to the "multiple symbol field" added in cc7abac0 upstream */
 
 		{
 			StderrInhibitor stdrrInhibitor;
 
-			if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", debug_dirs, options, outputStream)) {
+			if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", debug_dirs, options, outputStream, true)) {
 				outputStream.str("");
 				outputStream.clear();
 
 				// Try again without debug dirs.
-				if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", {}, options, outputStream)) {
+				if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", {}, options, outputStream, true)) {
 					if (log) fprintf(log, "Failed to process symbol file\n");
 					return false;
 				}
