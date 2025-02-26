@@ -595,12 +595,12 @@ To avoid an arcane error if you've got the wrong one (likely a bad clone or a ci
 		{
 			StderrInhibitor stdrrInhibitor;
 
-			if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", debug_dirs, options, outputStream, true)) {
+			if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", std::string(), debug_dirs, options, outputStream)) {
 				outputStream.str("");
 				outputStream.clear();
 
 				// Try again without debug dirs.
-				if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", {}, options, outputStream, true)) {
+				if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", std::string(), std::vector<string>{}, options, outputStream)) {
 					if (log) fprintf(log, "Failed to process symbol file\n");
 					return false;
 				}
