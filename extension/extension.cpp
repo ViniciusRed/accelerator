@@ -61,9 +61,9 @@ public:
 };
 
 // Taken from https://hg.mozilla.org/mozilla-central/file/3eb7623b5e63b37823d5e9c562d56e586604c823/build/unix/stdc%2B%2Bcompat/stdc%2B%2Bcompat.cpp
-extern "C" void __attribute__((weak)) __cxa_throw_bad_array_new_length() {
-	abort();
-}
+//extern "C" void __attribute__((weak)) __cxa_throw_bad_array_new_length() {
+//	abort();
+//}
 
 namespace std {
 	/* We shouldn't be throwing exceptions at all, but it sadly turns out
@@ -555,19 +555,52 @@ class UploadThread: public IThread
 			debugFileDir + "/.debug",
 			"/usr/lib/debug" + debugFileDir,
 		};
+/*
 
+There's somehow two versions of this struct floating around
+
+struct DumpOptions {
+  DumpOptions(SymbolData symbol_data,
+              bool handle_inter_cu_refs,
+              bool enable_multiple_field)
+      : symbol_data(symbol_data),
+        handle_inter_cu_refs(handle_inter_cu_refs),
+        enable_multiple_field(enable_multiple_field) {}
+
+  SymbolData symbol_data;
+  bool handle_inter_cu_refs;
+  bool enable_multiple_field;
+};
+
+vs
+
+struct DumpOptions {
+  DumpOptions(SymbolData symbol_data, bool handle_inter_cu_refs)
+      : symbol_data(symbol_data),
+        handle_inter_cu_refs(handle_inter_cu_refs) {
+  }
+
+  SymbolData symbol_data;
+  bool handle_inter_cu_refs;
+};
+
+To avoid an arcane error if you've got the wrong one (likely a bad clone or a ci script has gone awry) I'm just going to stick a static assert here
+
+*/
+		static_assert( sizeof(google_breakpad::DumpOptions::enable_multiple_field) == sizeof(bool), "DumpOptions::enable_multiple_field member missing or not a bool!");
 		std::ostringstream outputStream;
-		google_breakpad::DumpOptions options(ALL_SYMBOL_DATA, true);
+		google_breakpad::DumpOptions options(ALL_SYMBOL_DATA, true, false);
+		/*, third argument is related to the "multiple symbol field" added in cc7abac0 upstream */
 
 		{
 			StderrInhibitor stdrrInhibitor;
 
-			if (!WriteSymbolFile(debugFile, debug_dirs, options, outputStream)) {
+			if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", debug_dirs, options, outputStream)) {
 				outputStream.str("");
 				outputStream.clear();
 
 				// Try again without debug dirs.
-				if (!WriteSymbolFile(debugFile, {}, options, outputStream)) {
+				if (!WriteSymbolFile(debugFileDir, debugFile, "Linux", {}, options, outputStream)) {
 					if (log) fprintf(log, "Failed to process symbol file\n");
 					return false;
 				}
